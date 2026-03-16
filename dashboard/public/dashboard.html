@@ -1,0 +1,987 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AD Automation Dashboard — Desicrew</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg: #07091a;
+            --sidebar: #0d1025;
+            --card: rgba(20, 25, 55, 0.75);
+            --border: rgba(255, 255, 255, 0.07);
+            --primary: #4f46e5;
+            --green: #22c55e;
+            --red: #ef4444;
+            --yellow: #f59e0b;
+            --text: #e2e8f0;
+            --muted: #64748b;
+        }
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+        }
+
+        /* ─── SIDEBAR ─── */
+        .sidebar {
+            width: 250px;
+            min-height: 100vh;
+            background: var(--sidebar);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            padding: 1.5rem 1rem;
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            z-index: 50;
+        }
+
+        .sidebar-logo {
+            padding: 0 0.5rem 1.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .sidebar-logo img {
+            height: 36px;
+            object-fit: contain;
+        }
+
+        .sidebar nav {
+            margin-top: 1.5rem;
+            flex: 1;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.7rem 1rem;
+            border-radius: 12px;
+            color: var(--muted);
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-bottom: 0.3rem;
+            user-select: none;
+        }
+
+        .nav-item:hover {
+            background: rgba(79, 70, 229, 0.1);
+            color: #c7d2fe;
+        }
+
+        .nav-item.active {
+            background: rgba(79, 70, 229, 0.18);
+            color: #a5b4fc;
+        }
+
+        .nav-item i {
+            width: 18px;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+
+        .sidebar-footer {
+            padding: 1rem;
+            border-top: 1px solid var(--border);
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #4f46e5, #7c3aed);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .user-name {
+            font-size: 0.82rem;
+            font-weight: 600;
+        }
+
+        .user-role {
+            font-size: 0.72rem;
+            color: var(--muted);
+        }
+
+        .logout-btn {
+            width: 100%;
+            padding: 0.6rem;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            background: transparent;
+            color: var(--muted);
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .logout-btn:hover {
+            color: var(--red);
+            border-color: var(--red);
+        }
+
+        /* ─── MAIN ─── */
+        .main {
+            margin-left: 250px;
+            flex: 1;
+            padding: 2rem 2.5rem;
+        }
+
+        /* View sections */
+        .view {
+            display: none;
+        }
+
+        .view.active {
+            display: block;
+        }
+
+        /* ─── TOP BAR ─── */
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .page-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+
+        .live-badge {
+            background: var(--green);
+            color: #fff;
+            font-size: 0.65rem;
+            font-weight: 700;
+            padding: 0.18rem 0.55rem;
+            border-radius: 20px;
+            vertical-align: middle;
+            margin-left: 0.5rem;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1
+            }
+
+            50% {
+                opacity: 0.65
+            }
+        }
+
+        .top-meta {
+            font-size: 0.78rem;
+            color: var(--muted);
+            text-align: right;
+            line-height: 1.9;
+        }
+
+        .top-meta strong {
+            color: var(--text);
+        }
+
+        /* ─── STATS ─── */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.25rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 1.4rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            transition: transform 0.2s;
+            backdrop-filter: blur(12px);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-3px);
+        }
+
+        .stat-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            flex-shrink: 0;
+        }
+
+        .stat-icon.purple {
+            background: rgba(79, 70, 229, 0.15);
+            color: #818cf8;
+        }
+
+        .stat-icon.green {
+            background: rgba(34, 197, 94, 0.12);
+            color: #4ade80;
+        }
+
+        .stat-icon.slate {
+            background: rgba(100, 116, 139, 0.15);
+            color: #94a3b8;
+        }
+
+        .stat-icon.red {
+            background: rgba(239, 68, 68, 0.12);
+            color: #f87171;
+        }
+
+        .stat-label {
+            font-size: 0.72rem;
+            color: var(--muted);
+            margin-bottom: 0.2rem;
+        }
+
+        .stat-value {
+            font-size: 1.65rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+
+        /* ─── MID GRID ─── */
+        .mid-grid {
+            display: grid;
+            grid-template-columns: 1fr 360px;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .panel {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 1.5rem;
+            backdrop-filter: blur(12px);
+        }
+
+        .panel-title {
+            font-size: 0.72rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--muted);
+            margin-bottom: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .service-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.85rem 1rem;
+            background: rgba(255, 255, 255, 0.025);
+            border-radius: 12px;
+            margin-bottom: 0.6rem;
+            border: 1px solid var(--border);
+        }
+
+        .service-name {
+            font-size: 0.88rem;
+            font-weight: 500;
+        }
+
+        .service-time {
+            font-size: 0.7rem;
+            color: var(--muted);
+            margin-top: 0.15rem;
+        }
+
+        .badge {
+            padding: 0.22rem 0.65rem;
+            border-radius: 20px;
+            font-size: 0.68rem;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+        }
+
+        .badge.success {
+            background: rgba(34, 197, 94, 0.15);
+            color: #4ade80;
+        }
+
+        .badge.error {
+            background: rgba(239, 68, 68, 0.15);
+            color: #f87171;
+        }
+
+        .badge.warning {
+            background: rgba(245, 158, 11, 0.15);
+            color: #fcd34d;
+        }
+
+        .badge.unknown {
+            background: rgba(100, 116, 139, 0.15);
+            color: #94a3b8;
+        }
+
+        .badge.info {
+            background: rgba(79, 70, 229, 0.15);
+            color: #a5b4fc;
+        }
+
+        /* admin form */
+        .form-input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            color: var(--text);
+            font-family: 'Inter', sans-serif;
+            font-size: 0.85rem;
+            outline: none;
+            transition: border-color 0.2s;
+            margin-bottom: 0.75rem;
+        }
+
+        .form-input:focus {
+            border-color: var(--primary);
+        }
+
+        .form-input::placeholder {
+            color: var(--muted);
+        }
+
+        .btn-primary {
+            width: 100%;
+            padding: 0.75rem;
+            background: linear-gradient(135deg, #4f46e5, #7c3aed);
+            border: none;
+            border-radius: 12px;
+            color: #fff;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.2s, transform 0.15s;
+        }
+
+        .btn-primary:hover {
+            opacity: 0.88;
+            transform: translateY(-1px);
+        }
+
+        .action-msg {
+            font-size: 0.78rem;
+            text-align: center;
+            margin-top: 0.6rem;
+        }
+
+        /* ─── LOG TABLE ─── */
+        .log-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .log-table th {
+            font-size: 0.68rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--muted);
+            font-weight: 500;
+            padding: 0.5rem 0.9rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .log-table td {
+            padding: 0.75rem 0.9rem;
+            font-size: 0.82rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+        }
+
+        .log-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .log-table tr:hover td {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .log-empty {
+            text-align: center;
+            color: var(--muted);
+            padding: 2.5rem;
+        }
+
+        .log-scroll {
+            max-height: 380px;
+            overflow-y: auto;
+        }
+
+        .log-scroll::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .log-scroll::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 4px;
+        }
+
+        /* ─── AD OVERVIEW ─── */
+        .overview-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.7rem 0;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.85rem;
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .info-key {
+            color: var(--muted);
+        }
+
+        .info-val {
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        /* ─── SETTINGS ─── */
+        .settings-section {
+            margin-bottom: 2rem;
+        }
+
+        .settings-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .setting-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.9rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+        }
+
+        .setting-label {
+            font-size: 0.85rem;
+        }
+
+        .setting-desc {
+            font-size: 0.72rem;
+            color: var(--muted);
+            margin-top: 0.2rem;
+        }
+
+        .toggle {
+            position: relative;
+            width: 42px;
+            height: 24px;
+        }
+
+        .toggle input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            transition: 0.3s;
+        }
+
+        .slider::before {
+            content: '';
+            position: absolute;
+            height: 18px;
+            width: 18px;
+            border-radius: 50%;
+            left: 3px;
+            bottom: 3px;
+            background: white;
+            transition: 0.3s;
+        }
+
+        .toggle input:checked+.slider {
+            background: var(--primary);
+        }
+
+        .toggle input:checked+.slider::before {
+            transform: translateX(18px);
+        }
+
+        .save-btn {
+            padding: 0.65rem 1.75rem;
+            background: linear-gradient(135deg, #4f46e5, #7c3aed);
+            border: none;
+            border-radius: 12px;
+            color: #fff;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 1rem;
+            transition: opacity 0.2s;
+        }
+
+        .save-btn:hover {
+            opacity: 0.85;
+        }
+
+        .section-divider {
+            margin: 2rem 0;
+            border: none;
+            border-top: 1px solid var(--border);
+        }
+    </style>
+</head>
+
+<body>
+    <script>
+        if (!localStorage.getItem('token')) window.location.replace('/login.html');
+    </script>
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="sidebar-logo">
+            <img src="logo.png" alt="Desicrew">
+        </div>
+        <nav>
+            <div class="nav-item active" data-view="dashboard">
+                <i class="fas fa-gauge-high"></i> Dashboard
+            </div>
+            <div class="nav-item" data-view="ad-overview">
+                <i class="fas fa-users-gear"></i> AD Overview
+            </div>
+            <div class="nav-item" data-view="activity-logs">
+                <i class="fas fa-scroll"></i> Activity Logs
+            </div>
+            <div class="nav-item" data-view="settings">
+                <i class="fas fa-sliders"></i> Settings
+            </div>
+        </nav>
+        <div class="sidebar-footer">
+            <div class="user-info">
+                <div class="user-avatar">AD</div>
+                <div>
+                    <div class="user-name">Administrator</div>
+                    <div class="user-role">Full Access</div>
+                </div>
+            </div>
+            <button class="logout-btn" onclick="logout()">
+                <i class="fas fa-arrow-right-from-bracket"></i> Sign Out
+            </button>
+        </div>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="main">
+
+        <!-- ═══════════════ VIEW: DASHBOARD ═══════════════ -->
+        <div class="view active" id="view-dashboard">
+            <div class="top-bar">
+                <div>
+                    <div class="page-title">Active Directory Automation <span class="live-badge">LIVE</span></div>
+                </div>
+                <div class="top-meta">
+                    <div>Server: <strong id="serverName">—</strong></div>
+                    <div>Uptime: <strong id="uptime">—</strong></div>
+                    <div>Updated: <strong id="lastUpdated">—</strong></div>
+                </div>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon purple"><i class="fas fa-users"></i></div>
+                    <div>
+                        <div class="stat-label">Total Users</div>
+                        <div class="stat-value" id="totalUsers">—</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon green"><i class="fas fa-user-check"></i></div>
+                    <div>
+                        <div class="stat-label">Enabled</div>
+                        <div class="stat-value" id="enabledUsers">—</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon slate"><i class="fas fa-user-minus"></i></div>
+                    <div>
+                        <div class="stat-label">Disabled</div>
+                        <div class="stat-value" id="disabledUsers">—</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon red"><i class="fas fa-user-lock"></i></div>
+                    <div>
+                        <div class="stat-label">Locked Out</div>
+                        <div class="stat-value" id="lockedUsers">—</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mid-grid">
+                <div class="panel">
+                    <div class="panel-title"><i class="fas fa-circle-dot"></i> Automation Services</div>
+                    <div id="servicesList"></div>
+                </div>
+                <div class="panel">
+                    <div class="panel-title"><i class="fas fa-bolt"></i> Admin Actions</div>
+                    <p style="font-size:0.9rem;font-weight:600;margin-bottom:1rem;">Create AD User</p>
+                    <form id="createUserForm">
+                        <input class="form-input" type="text" id="newUsername" placeholder="Username (e.g. DC1234)"
+                            required>
+                        <input class="form-input" type="text" id="newFullName" placeholder="Full Name" required>
+                        <button type="submit" class="btn-primary"><i class="fas fa-user-plus"></i> Trigger
+                            Creation</button>
+                    </form>
+                    <div class="action-msg" id="actionMsg"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══════════════ VIEW: AD OVERVIEW ═══════════════ -->
+        <div class="view" id="view-ad-overview">
+            <div class="top-bar">
+                <div class="page-title">AD Overview</div>
+            </div>
+
+            <div class="overview-grid">
+                <div class="panel">
+                    <div class="panel-title"><i class="fas fa-server"></i> Domain Information</div>
+                    <div class="info-row"><span class="info-key">Domain</span><span class="info-val">desicrew.in</span>
+                    </div>
+                    <div class="info-row"><span class="info-key">Freshservice</span><span
+                            class="info-val">desicrew.freshservice.com</span></div>
+                    <div class="info-row"><span class="info-key">Server Name</span><span class="info-val"
+                            id="ov-server">—</span></div>
+                    <div class="info-row"><span class="info-key">Uptime</span><span class="info-val"
+                            id="ov-uptime">—</span></div>
+                    <div class="info-row"><span class="info-key">Environment</span><span
+                            class="info-val">Production</span></div>
+                </div>
+
+                <div class="panel">
+                    <div class="panel-title"><i class="fas fa-chart-pie"></i> User Distribution</div>
+                    <div class="info-row"><span class="info-key">Total Users</span><span class="info-val"
+                            id="ov-total">—</span></div>
+                    <div class="info-row"><span class="info-key">Enabled Accounts</span><span class="info-val"
+                            id="ov-enabled">—</span></div>
+                    <div class="info-row"><span class="info-key">Disabled Accounts</span><span class="info-val"
+                            id="ov-disabled">—</span></div>
+                    <div class="info-row"><span class="info-key">Currently Locked</span><span class="info-val"
+                            id="ov-locked" style="color:#f87171">—</span></div>
+                </div>
+            </div>
+
+            <div class="panel">
+                <div class="panel-title"><i class="fas fa-robot"></i> Automation Scripts Status</div>
+                <div id="ov-services"></div>
+            </div>
+
+            <div class="panel" style="margin-top:1.5rem">
+                <div class="panel-title"><i class="fas fa-shield-halved"></i> IT Support Team (Approval Required)</div>
+                <div style="display:flex;flex-wrap:wrap;gap:0.6rem;margin-top:0.5rem">
+                    <span class="badge info" style="padding:0.4rem 1rem;font-size:0.8rem">DK0298</span>
+                    <span class="badge info" style="padding:0.4rem 1rem;font-size:0.8rem">DC2531</span>
+                    <span class="badge info" style="padding:0.4rem 1rem;font-size:0.8rem">DC5000</span>
+                    <span class="badge info" style="padding:0.4rem 1rem;font-size:0.8rem">DC2037</span>
+                    <span class="badge info" style="padding:0.4rem 1rem;font-size:0.8rem">DC4944</span>
+                    <span class="badge info" style="padding:0.4rem 1rem;font-size:0.8rem">DC1651</span>
+                    <span class="badge info" style="padding:0.4rem 1rem;font-size:0.8rem">DC1928</span>
+                </div>
+                <p style="font-size:0.75rem;color:var(--muted);margin-top:0.75rem">Unlock or password reset for these
+                    IDs require IT Manager approval from balachandran@desicrew.in</p>
+            </div>
+        </div>
+
+        <!-- ═══════════════ VIEW: ACTIVITY LOGS ═══════════════ -->
+        <div class="view" id="view-activity-logs">
+            <div class="top-bar">
+                <div class="page-title">Activity Logs</div>
+                <button onclick="fetchData()"
+                    style="padding:0.5rem 1rem;background:rgba(79,70,229,0.15);border:1px solid rgba(79,70,229,0.3);border-radius:10px;color:#a5b4fc;font-family:Inter,sans-serif;font-size:0.82rem;cursor:pointer;">
+                    <i class="fas fa-rotate"></i> Refresh
+                </button>
+            </div>
+
+            <div class="panel">
+                <div class="panel-title"><i class="fas fa-terminal"></i> All Activity — Last 50 Events</div>
+                <div class="log-scroll">
+                    <table class="log-table">
+                        <thead>
+                            <tr>
+                                <th>Time</th>
+                                <th>Service</th>
+                                <th>Status</th>
+                                <th>Message</th>
+                            </tr>
+                        </thead>
+                        <tbody id="logBodyFull"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══════════════ VIEW: SETTINGS ═══════════════ -->
+        <div class="view" id="view-settings">
+            <div class="top-bar">
+                <div class="page-title">Settings</div>
+            </div>
+
+            <div class="panel" style="max-width:720px">
+                <div class="settings-section">
+                    <div class="settings-title"><i class="fas fa-bell" style="color:#818cf8;margin-right:0.4rem"></i>
+                        Notification Settings</div>
+                    <div class="setting-row">
+                        <div>
+                            <div class="setting-label">Enable Dashboard Auto-Refresh</div>
+                            <div class="setting-desc">Polls the API every 5 seconds for live updates</div>
+                        </div>
+                        <label class="toggle"><input type="checkbox" id="autoRefresh" checked><span
+                                class="slider"></span></label>
+                    </div>
+                    <div class="setting-row">
+                        <div>
+                            <div class="setting-label">Show Error Alerts in Dashboard</div>
+                            <div class="setting-desc">Highlight failed automation runs prominently</div>
+                        </div>
+                        <label class="toggle"><input type="checkbox" id="showErrors" checked><span
+                                class="slider"></span></label>
+                    </div>
+                </div>
+
+                <hr class="section-divider">
+
+                <div class="settings-section">
+                    <div class="settings-title"><i class="fas fa-key" style="color:#818cf8;margin-right:0.4rem"></i> API
+                        Configuration</div>
+                    <div class="info-row"><span class="info-key">Dashboard API Port</span><span
+                            class="info-val">3030</span></div>
+                    <div class="info-row"><span class="info-key">Update Token</span><span class="info-val"
+                            style="font-family:monospace;font-size:0.8rem">desicrew-update-token</span></div>
+                    <div class="info-row"><span class="info-key">PowerShell Push URL</span><span class="info-val"
+                            style="font-family:monospace;font-size:0.8rem">http://localhost:3030/api/update</span></div>
+                    <div class="info-row"><span class="info-key">Session Duration</span><span class="info-val">1 hour
+                            (JWT)</span></div>
+                </div>
+
+                <hr class="section-divider">
+
+                <div class="settings-section">
+                    <div class="settings-title"><i class="fas fa-lock" style="color:#818cf8;margin-right:0.4rem"></i>
+                        Admin Credentials</div>
+                    <div class="info-row"><span class="info-key">Username</span><span class="info-val">admin</span>
+                    </div>
+                    <div class="info-row"><span class="info-key">Password</span><span class="info-val">admin123</span>
+                    </div>
+                    <p style="font-size:0.72rem;color:var(--muted);margin-top:0.75rem">⚠️ Change the SECRET_KEY and
+                        ADMIN_HASH in server.js before production deployment.</p>
+                </div>
+
+                <button class="save-btn" onclick="alert('Settings saved!')">
+                    <i class="fas fa-floppy-disk"></i> Save Preferences
+                </button>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        const getToken = () => localStorage.getItem('token');
+        let dashData = null;
+        let refreshInterval = null;
+
+        function logout() {
+            localStorage.clear();
+            window.location.replace('/login.html');
+        }
+
+        // ─── NAVIGATION ───
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', () => {
+                const target = item.dataset.view;
+                document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+                document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+                item.classList.add('active');
+                document.getElementById(`view-${target}`).classList.add('active');
+            });
+        });
+
+        // ─── STATUS CLASS ───
+        function sc(s) {
+            if (!s || s === 'unknown') return 'unknown';
+            if (s === 'success') return 'success';
+            if (s === 'error') return 'error';
+            if (s === 'info') return 'info';
+            return 'warning';
+        }
+
+        // ─── RENDER ───
+        function render(data) {
+            dashData = data;
+            const s = data.system, st = data.stats;
+
+            // Dashboard view
+            document.getElementById('serverName').textContent = s.serverName;
+            document.getElementById('uptime').textContent = s.uptime;
+            document.getElementById('lastUpdated').textContent = new Date(s.lastUpdated).toLocaleTimeString();
+            document.getElementById('totalUsers').textContent = st.totalUsers;
+            document.getElementById('enabledUsers').textContent = st.enabledUsers;
+            document.getElementById('disabledUsers').textContent = st.disabledUsers;
+            document.getElementById('lockedUsers').textContent = st.lockedUsers;
+
+            // Services (Dashboard)
+            const svcEl = document.getElementById('servicesList');
+            svcEl.innerHTML = Object.entries(data.services).map(([name, info]) => `
+        <div class="service-row">
+            <div>
+                <div class="service-name">${name}</div>
+                <div class="service-time">${info.lastRun ? new Date(info.lastRun).toLocaleString() : 'Never run'}</div>
+            </div>
+            <span class="badge ${sc(info.status)}">${(info.status || 'UNKNOWN').toUpperCase()}</span>
+        </div>`).join('');
+
+            // AD Overview
+            document.getElementById('ov-server').textContent = s.serverName;
+            document.getElementById('ov-uptime').textContent = s.uptime;
+            document.getElementById('ov-total').textContent = st.totalUsers;
+            document.getElementById('ov-enabled').textContent = st.enabledUsers;
+            document.getElementById('ov-disabled').textContent = st.disabledUsers;
+            document.getElementById('ov-locked').textContent = st.lockedUsers;
+            document.getElementById('ov-services').innerHTML = Object.entries(data.services).map(([name, info]) => `
+        <div class="service-row">
+            <div>
+                <div class="service-name">${name}</div>
+                <div class="service-time">Last: ${info.lastRun ? new Date(info.lastRun).toLocaleString() : 'Never'}</div>
+            </div>
+            <span class="badge ${sc(info.status)}">${(info.status || 'UNKNOWN').toUpperCase()}</span>
+        </div>`).join('');
+
+            // Activity Logs (Full)
+            const tbody = document.getElementById('logBodyFull');
+            if (!data.logs || data.logs.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" class="log-empty">No activity recorded yet.</td></tr>';
+            } else {
+                tbody.innerHTML = data.logs.map(log => `
+            <tr>
+                <td style="color:var(--muted);white-space:nowrap">${log.time}</td>
+                <td>${log.service}</td>
+                <td><span class="badge ${sc(log.status)}">${log.status.toUpperCase()}</span></td>
+                <td style="color:var(--muted)">${log.message}</td>
+            </tr>`).join('');
+            }
+        }
+
+        // ─── FETCH ───
+        async function fetchData() {
+            try {
+                const res = await fetch('/api/status', { headers: { 'Authorization': `Bearer ${getToken()}` } });
+                if (res.status === 401 || res.status === 403) { logout(); return; }
+                render(await res.json());
+            } catch (e) { console.error(e); }
+        }
+
+        // ─── CREATE USER ───
+        document.getElementById('createUserForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const msg = document.getElementById('actionMsg');
+            const username = document.getElementById('newUsername').value;
+            const name = document.getElementById('newFullName').value;
+            msg.style.color = 'var(--muted)';
+            msg.textContent = 'Processing…';
+            try {
+                const res = await fetch('/api/create-user', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${getToken()}` },
+                    body: JSON.stringify({ username, name })
+                });
+                if (res.ok) {
+                    msg.style.color = 'var(--green)';
+                    msg.textContent = `✓ Triggered creation for ${username}`;
+                    document.getElementById('createUserForm').reset();
+                    fetchData();
+                } else {
+                    msg.style.color = 'var(--red)';
+                    msg.textContent = '✗ Failed.';
+                }
+            } catch { msg.style.color = 'var(--red)'; msg.textContent = '✗ Server error.'; }
+        });
+
+        // ─── SETTINGS: Auto-refresh toggle ───
+        document.getElementById('autoRefresh').addEventListener('change', function () {
+            clearInterval(refreshInterval);
+            if (this.checked) refreshInterval = setInterval(fetchData, 5000);
+        });
+
+        // ─── INIT ───
+        fetchData();
+        refreshInterval = setInterval(fetchData, 5000);
+    </script>
+</body>
+
+</html>

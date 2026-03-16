@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login — Desicrew AD Admin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #07091a;
+            overflow: hidden;
+        }
+
+        /* Animated gradient blobs */
+        body::before,
+        body::after {
+            content: '';
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(100px);
+            opacity: 0.35;
+            z-index: 0;
+        }
+
+        body::before {
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, #3b0db5, #1a0066);
+            top: -200px;
+            left: -200px;
+            animation: blob1 12s ease-in-out infinite alternate;
+        }
+
+        body::after {
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, #00c3a5, #005544);
+            bottom: -150px;
+            right: -150px;
+            animation: blob2 10s ease-in-out infinite alternate;
+        }
+
+        @keyframes blob1 {
+            to {
+                transform: translate(60px, 60px) scale(1.1);
+            }
+        }
+
+        @keyframes blob2 {
+            to {
+                transform: translate(-60px, -60px) scale(1.15);
+            }
+        }
+
+        .login-card {
+            position: relative;
+            z-index: 10;
+            background: rgba(15, 20, 50, 0.75);
+            backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 28px;
+            padding: 3rem 2.5rem 2.5rem;
+            width: 100%;
+            max-width: 420px;
+            box-shadow: 0 32px 80px rgba(0, 0, 0, 0.6);
+        }
+
+        .logo-area {
+            text-align: center;
+            margin-bottom: 1.75rem;
+        }
+
+        .logo-area img {
+            height: 48px;
+            object-fit: contain;
+            filter: drop-shadow(0 0 12px rgba(79, 70, 229, 0.4));
+        }
+
+        .divider {
+            border: none;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            margin: 1.75rem 0;
+        }
+
+        .title-row {
+            text-align: center;
+            margin-bottom: 0.4rem;
+        }
+
+        .title-row h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #f1f5f9;
+            letter-spacing: -0.02em;
+        }
+
+        .subtitle {
+            text-align: center;
+            font-size: 0.8rem;
+            color: #64748b;
+            margin-bottom: 2rem;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+
+        .field {
+            position: relative;
+            margin-bottom: 1.25rem;
+        }
+
+        .field i {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #475569;
+            font-size: 0.9rem;
+            pointer-events: none;
+        }
+
+        .field input {
+            width: 100%;
+            padding: 0.875rem 1rem 0.875rem 2.75rem;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 14px;
+            color: #f1f5f9;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.9rem;
+            outline: none;
+            transition: border-color 0.2s, background 0.2s;
+        }
+
+        .field input:focus {
+            border-color: #4f46e5;
+            background: rgba(79, 70, 229, 0.07);
+        }
+
+        .field input::placeholder {
+            color: #475569;
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 0.9rem;
+            border: none;
+            border-radius: 14px;
+            background: linear-gradient(135deg, #4f46e5, #7c3aed);
+            color: #fff;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.2s, transform 0.15s;
+            margin-top: 0.5rem;
+            letter-spacing: 0.02em;
+        }
+
+        .login-btn:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+
+        .login-btn:active {
+            transform: translateY(0);
+        }
+
+        .login-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        #error-msg {
+            color: #f87171;
+            font-size: 0.82rem;
+            text-align: center;
+            margin-top: 1rem;
+            display: none;
+        }
+
+        .footer-note {
+            text-align: center;
+            color: #334155;
+            font-size: 0.72rem;
+            margin-top: 1.75rem;
+            letter-spacing: 0.04em;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="login-card">
+        <div class="logo-area">
+            <img src="logo.png" alt="Desicrew Logo">
+        </div>
+        <hr class="divider">
+        <div class="title-row">
+            <h1>Admin Sign In</h1>
+        </div>
+        <p class="subtitle">Active Directory Automation Portal</p>
+
+        <form id="loginForm">
+            <div class="field">
+                <i class="fas fa-user-shield"></i>
+                <input type="text" id="username" placeholder="Username" required autocomplete="off" autofocus>
+            </div>
+            <div class="field">
+                <i class="fas fa-lock"></i>
+                <input type="password" id="password" placeholder="Password" required>
+            </div>
+            <button type="submit" class="login-btn" id="loginBtn">
+                <i class="fas fa-arrow-right-to-bracket"></i>&nbsp; Sign In
+            </button>
+        </form>
+        <p id="error-msg"><i class="fas fa-circle-exclamation"></i> Invalid username or password.</p>
+        <p class="footer-note">DESICREW SOLUTIONS · IT HELPDESK</p>
+    </div>
+
+    <script>
+        // If already logged in, redirect
+        if (localStorage.getItem('token')) {
+            window.location.replace('/dashboard.html');
+        }
+
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('loginBtn');
+            const err = document.getElementById('error-msg');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>&nbsp; Signing in…';
+            err.style.display = 'none';
+
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            try {
+                const res = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+
+                if (res.ok) {
+                    const data = await res.json();
+                    localStorage.setItem('token', data.token);
+                    localStorage.setItem('role', data.role);
+                    window.location.replace('/dashboard.html');
+                } else {
+                    err.style.display = 'block';
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fas fa-arrow-right-to-bracket"></i>&nbsp; Sign In';
+                }
+            } catch {
+                err.textContent = 'Server unavailable. Try again.';
+                err.style.display = 'block';
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-arrow-right-to-bracket"></i>&nbsp; Sign In';
+            }
+        });
+    </script>
+</body>
+
+</html>

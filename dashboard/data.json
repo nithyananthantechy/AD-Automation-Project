@@ -1,0 +1,56 @@
+{
+  "system": {
+    "serverName": "DC-PROD-AD01",
+    "uptime": "45d 12h 30m",
+    "lastUpdated": "2026-02-28T07:09:51.413Z"
+  },
+  "stats": {
+    "totalUsers": 1450,
+    "enabledUsers": 1420,
+    "disabledUsers": 30,
+    "lockedUsers": 5,
+    "serverName": "DC-PROD-AD01",
+    "uptime": "45d 12h 30m"
+  },
+  "services": {
+    "AD Creation": {
+      "status": "success",
+      "lastRun": "2026-02-28T07:09:51.540Z"
+    },
+    "Password Reset": {
+      "status": "warning",
+      "lastRun": "2026-02-28T07:09:51.566Z"
+    },
+    "Offboarding": {
+      "status": "unknown",
+      "lastRun": null
+    },
+    "Unlock": {
+      "status": "success",
+      "lastRun": "2026-02-28T07:09:51.584Z"
+    }
+  },
+  "logs": [
+    {
+      "id": 1772262591584,
+      "time": "12:39:51 PM",
+      "service": "Unlock",
+      "status": "success",
+      "message": "Domain unlocked for DC4251."
+    },
+    {
+      "id": 1772262591566,
+      "time": "12:39:51 PM",
+      "service": "Password Reset",
+      "status": "warning",
+      "message": "Failed to reset password for User X: AD constraint."
+    },
+    {
+      "id": 1772262591450,
+      "time": "12:39:51 PM",
+      "service": "AD Creation",
+      "status": "success",
+      "message": "User JDOE created successfully."
+    }
+  ]
+}
